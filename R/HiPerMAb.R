@@ -1,53 +1,9 @@
-#install.packages(c("Hmisc","pROC","discretization","plotly","shiny","Biocomb","data.table","plot3D"))
-library(Hmisc)
-library(pROC)
-library(discretization)
-library(plotly)
-library(shiny)
-library(Biocomb)
-library(data.table)
-library(plot3D)
-library(DT)
+##########################################################################################
+################ High performance measurements abundance R shiny application #############
+#########################################################################################
 
-plotLines<-function(x, y, xlab=NULL, ylab=NULL, main=NULL, titles=NULL,  shape="vh", opacity=NULL) {
-  
-  if(is.vector(y)) y<-matrix(y, nrow=length(x))
-  
-  if(is.null(titles)) titles<-paste(colnames(y))
-  if(is.null(opacity)) opacity<-rep(1, ncol(y))
-  
-  
-  if(length(x)!=nrow(y) | ncol(y)!=length(titles) | ncol(y)!=length(opacity))
-    stop("The length of 'x', the row number of 'y' must be identical, as well as
-         the column number of 'y', the length of 'titles' and 'opacity' !")
-  
-  
-  
-  xa <- list(
-    title = xlab,
-    titlefont = t
-  )
-  ya <- list(
-    title = ylab,
-    titlefont = t
-  )
-  
-  
-  p<-plotly::plot_ly(x=x) %>% plotly::layout(title=main,xaxis = xa, yaxis = ya)
-  
-  
-  
-  
-  
-  for(i in 1:ncol(y)) {
-    p<-plotly::add_lines(p, y=y[, i], line=list(shape=shape), opacity=opacity[i], name=titles[i])
-  }
-  p
-}
-
-###  generate random data with the same missing pattern 
-generate.random.mis <- function(data,method="MonteCarlo")
-{
+##### generate random data with the same missing pattern usining either Monte-Carlo or permutation test######### 
+generate.random.mis <- function(data,method="MonteCarlo"){
   
   labs <- data[,ncol(data)]
   dat<- data[,-ncol(data)]
@@ -81,40 +37,11 @@ generate.random.mis <- function(data,method="MonteCarlo")
   
 }
 
-########################################################################
-performance.measure.sim <- function(pfm,n,p.classes,no.simulations=1000){
-  
-  ### Generate the class labels.
-  props <- p.classes/sum(p.classes)
-  diagn <- rep(1,n)
-  ind <- round(n*props[1])
-  for (i in 2:length(props)){
-    ind.start <- ind + 1
-    ind <- round(n*sum(props[1:i]))
-    diagn[ind.start:ind] <- i
-  }
-  
-  diagn <- factor(diagn)
-  
-  
-  ### Generate no.simulations "biomarkers" with random values.
-  
-  x <- matrix(runif(n*no.simulations),nrow=n)
-  
-  ### Compute the performance measure values for the generated "biomarkers".
-  if(pfm== "AAC"){
-    pfms <- sapply(data.frame(x),pfm,labs=diagn,NULL)
-  }else{
-    pfms <- sapply(data.frame(x),pfm,labs=diagn)
-  }
-  
-  
-  return(pfms)
-  
-}
-################################################
-###### Misclassification rate #############
-##########################################
+
+###############################################################################
+###### For Misclassification rate as performance measurement ##################
+####  only for multi-class problems, minimum 3 classes and maximum 10 #########
+##############################################################################
 Outlier.index<-function(x){
   quantiles<-quantile(x,na.rm=T)
   lowerq<-quantiles[2]
@@ -169,7 +96,7 @@ order.multiclass<-function(scores, labs){
     scores<-scores[-outliers]
     labs<-labs[-outliers]
   }
- 
+  
   return(list(score=scores, lab=labs,level=lv.lab[index.lv], means= mean.lv))
 }
 
@@ -232,10 +159,9 @@ add.noise<- function(scores){
     x<- scores[i]+ runif(1,-min.diff,min.diff)
     noised.scores[i]<- x
   }
-    
-    return(noised.scores)
+  
+  return(noised.scores)
 }
-
 
 class.index.list<- function(scores,labels){
   
@@ -249,10 +175,9 @@ class.index.list<- function(scores,labels){
     new.order<- order.multiclass(scores, labels)
     Index<- class.indx(new.order$lab,new.order$level)
   }
-
+  
   return(Index)
 }
-
 
 possible.cutpoint<- function(index.mat){
   n.cutoff<- length(index.mat)
@@ -265,7 +190,6 @@ possible.cutpoint<- function(index.mat){
   if(n.cutoff== 8){return(as.matrix(do.call(data.table::CJ, index.mat)[V1<V2&V1<V3&V1<V4&V1<V5&V1<V6&V1<V7&V1<V8&V2<V3&V2<V4&V2<V5&V2<V6&V2<V7&V2<V8&V3<V4&V3<V5&V3<V6&V3<V7&V3<V8&V4<V5&V4<V6&V4<V7&V4<V8&V5<V6&V5<V7&V5<V8&V6<V7&V6<V8&V7<V8]))}
   if(n.cutoff== 9){return(as.matrix(do.call(data.table::CJ, index.mat)[V1<V2&V1<V3&V1<V4&V1<V5&V1<V6&V1<V7&V1<V8&V1<V9&V2<V3&V2<V4&V2<V5&V2<V6&V2<V7&V2<V8&V2<V9&V3<V4&V3<V5&V3<V6&V3<V7&V3<V8&V3<V9&V4<V5&V4<V6&V4<V7&V4<V8&V4<V9&V5<V6&V5<V7&V5<V8&V5<V9&V6<V7&V6<V8&V6<V9&V7<V8&V7<V9&V8<V9]))}
 }
-
 
 calculate.props<- function(cutpoint.matrix, n.scores){
   n.cutoff<- ncol(cutpoint.matrix)
@@ -281,13 +205,12 @@ calculate.props<- function(cutpoint.matrix, n.scores){
   }
   
   props[,n.cutoff+1]<- (n.scores - cutpoint.matrix[,n.cutoff])+1
-
+  
   return(props)
 }
 
-
 calculate.false<- function(scores, labs, props){
-  beg<- Sys.time()
+  
   order.scores<- order(scores)
   order.labs<- labs[order.scores]
   
@@ -300,7 +223,6 @@ calculate.false<- function(scores, labs, props){
     for(j in 1: ncol(props)){
       tab<-table(split.labs[[j]])
       
-      
       a<- max(tab)
       b<- which(tab==a)
       false.sum[j]<- sum(tab)- tab[b]
@@ -308,22 +230,17 @@ calculate.false<- function(scores, labs, props){
     
     false.labs[i]<- sum(false.sum)
   }
-  en<- Sys.time()
   
   return (false.labs)
 }
 
-
 minm.false<-function(scores, labs, props){
   xx<- suppressWarnings({calculate.false(scores, labs, props)})
-  beg<- Sys.time()
   min.xx<- min(xx)
   minm.xx<- which(xx== min.xx)
-  en<- Sys.time()
-
+  
   return (list(n.false= min.xx, cut.score= minm.xx))
 }
-
 
 misClass.Rate<- function(scores, labels){
   
@@ -333,15 +250,15 @@ misClass.Rate<- function(scores, labels){
   
   min.false<- minm.false(scores,labels, props) 
   mis.rate<- min.false$n.false/length(scores)
-
+  
   return (mis.rate)
   
 }
 
 
-######################################################
-#####  Area above the cost curve ##################
-#######################################################
+#################################################################################
+#####  calculate the performance measurements    ##################
+#############################################################################
 aac<- function(x,labs, pos.class=NULL){
   lvs<- levels(labs)
   if (is.null(pos.class)){
@@ -357,19 +274,8 @@ aac<- function(x,labs, pos.class=NULL){
   return(aac)
 }
 
-
-
-mauc<- function(x, labs){
-  
-    a<- pROC:: multiclass.roc(labs, x)$auc[1]
-    
-    if (a>= 0.5){
-      auc<- a
-    }else{
-      auc<- 1-a
-    }
-    
-  return(a)
+AAC <- function(scores,labs){
+  return(aac(scores, labs, pos.class))
 }
 
 HUM.perf<- function(x,labs){
@@ -381,35 +287,28 @@ HUM.perf<- function(x,labs){
   a<- CalculateHUM_seq(data,indexF=1,indexClass=ncol(data),indexLabel= indexLabs)
   
   return(a)
-  
 }
-####################################################################################
-#####  performance function ############################
-##################################################
-###########################################################
+
+HUM <- function(scores,labs){
+  return(HUM.perf(scores, labs)$HUM)
+}
+
 entropy <- function(scores, labs){
   return(cutIndex(scores, labs)[2])
 }
 
 mAUC <- function(scores,labs){
-  return(multiclass.roc(labs,scores)$auc)
+  return(multiclass.roc(labs,scores)$auc[1])
 }
 
 missRate <- function(scores,labs){
   return(misClass.Rate(scores, labs)$misclassification.rate)
 }
 
-AAC <- function(scores,labs){
-  return(aac(scores, labs, pos.class))
-}
-
-HUM <- function(scores,labs){
-  return(HUM.perf(scores, labs)$HUM)
-}
 perf.Measure<- function(data, method ,pos.class=NULL){
   label=levels(data[,ncol(data)])
   switch(method, 
-         mAUC={mauc<- apply(data[,-ncol(data)],2, mauc, data[,ncol(data)])
+         mAUC={mauc<- apply(data[,-ncol(data)],2, mAUC, data[,ncol(data)])
          vals<- mauc
          
          }, 
@@ -424,7 +323,7 @@ perf.Measure<- function(data, method ,pos.class=NULL){
          HUM={hum<-apply(data[,-ncol(data)], 2, HUM.perf, data[,ncol(data)])
          vals<- unlist(sapply(hum, "[[", 1))
          },
-         misClassRate={misR<-apply(data[,-ncol(data)], 2, misClass.Rate, data[,ncol(data)])
+         misClassRate={misR<-apply(data[,-ncol(data)], 2, missRate, data[,ncol(data)])
          vals<- misR
          }
          
@@ -433,15 +332,45 @@ perf.Measure<- function(data, method ,pos.class=NULL){
   return(vals)
 }
 
+####### simulate number of random biomarker candidates and measure thier performance ###########
+performance.measure.sim <- function(pfm,n,p.classes,no.simulations=1000){
+  
+  ### Generate the class labels.
+  props <- p.classes/sum(p.classes)
+  diagn <- rep(1,n)
+  ind <- round(n*props[1])
+  for (i in 2:length(props)){
+    ind.start <- ind + 1
+    ind <- round(n*sum(props[1:i]))
+    diagn[ind.start:ind] <- i
+  }
+  
+  diagn <- factor(diagn)
+  
+  
+  ### Generate no.simulations "biomarkers" with random values.
+  
+  x <- matrix(runif(n*no.simulations),nrow=n)
+  
+  ### Compute the performance measure values for the generated "biomarkers".
+  if(pfm== "AAC"){
+    pfms <- sapply(data.frame(x),pfm,labs=diagn,NULL)
+  }else{
+    pfms <- sapply(data.frame(x),pfm,labs=diagn)
+  }
+  
+  return(pfms)
+}
+
 
 #################################################################
-######   HiperMAb  Function  #########################
+######   HiPerMAb  Function  #########################
 ##########################################################
 ####################################################################################################################################
 ## Computes the performance of the biomarkers candidates with the p-value that calculates by simulations and corrected by         ##
-## Benjamini and Hochberg method or by Holm-Bonferroni                                               ##
+## Benjamini and Hochberg method or by Holm-Bonferroni                                                                            ##
 ##                                                                                                                                ##
-## dattable   data frame of biomarker candidates in columns, cases in rows with and the last column has the state of disease      ##
+## dattable              data frame of biomarker candidates in columns, cases in rows, the last column has the state of disease   ##
 ## random.simulation     how to generate random data set either "MonteCarlo" or "Permutation"                                     ##
 ## imput.method          how to impute the missing values either "median" or "random"                                             ##
 ## pfM.method            performance measurement either "entropy","mAUC","AAC","HUM","misClassRate"                               ##
@@ -451,18 +380,140 @@ perf.Measure<- function(data, method ,pos.class=NULL){
 ## is.positive           relation between the value of the performance measurement and the quality of the marker.                 ##
 ## corrected.method      corrected the p-values either by controlling FWER or FDR                                                 ## 
 ####################################################################################################################################
+plotLines<-function(x, y, xlab=NULL, ylab=NULL, main=NULL, titles=NULL,  shape="vh", opacity=NULL) {
+  
+  if(is.vector(y)) y<-matrix(y, nrow=length(x))
+  
+  if(is.null(titles)) titles<-paste(colnames(y))
+  if(is.null(opacity)) opacity<-rep(1, ncol(y))
+  
+  
+  if(length(x)!=nrow(y) | ncol(y)!=length(titles) | ncol(y)!=length(opacity))
+    stop("The length of 'x', the row number of 'y' must be identical, as well as
+         the column number of 'y', the length of 'titles' and 'opacity' !")
+  
+  
+  
+  xa <- list(
+    title = xlab,
+    titlefont = t
+  )
+  ya <- list(
+    title = ylab,
+    titlefont = t
+  )
+  
+  
+  p<-plotly::plot_ly(x=x) %>% plotly::layout(title=main,xaxis = xa, yaxis = ya)
+  
+  
+  for(i in 1:ncol(y)) {
+    p<-plotly::add_lines(p, y=y[, i], line=list(shape=shape), opacity=opacity[i], name=titles[i])
+  }
+  p
+}
+
 performance<- function(dattable, random.simulation= "MonteCarlo",imput.method= "median", pfM.method= "entropy", 
-                          no.simulations= 1000,pos.class= NULL, Con.Interval= 0.95,is.positive=FALSE,corrected.method= "FWER"){
+                       no.simulations= 1000,pos.class= NULL, Con.Interval= 0.95,is.positive=FALSE,corrected.method= "FWER"){
+  
   dattable[,ncol(dattable)]<- as.factor(dattable[,ncol(dattable)])
-  rand.dat<- generate.random.mis(dattable,random.simulation)
- 
+
   ## 1. Missing Imputation
   if (sum(is.na(dattable))> 0){
     ## Real dattable
     indx <- unique(which(is.na(dattable), arr.ind=TRUE)[,2])
     misMat<- matrix(0, nrow(dattable), length(indx))
     colnames(misMat)<- colnames(dattable)[indx]
+
+    
+    if(imput.method== "median"){
+      for(i in 1:length(indx)){
+        a<- Hmisc::impute(dattable[,indx[i]])
+        
+        misMat[,i]<- a
+      }
+     
+      dattable[,colnames(dattable)[indx]]<- misMat
+      
+    }
+    ###################################
+    if (imput.method== "random"){
+      for(i in 1:length(indx)){
+        a<- Hmisc::impute(dattable[,indx[i]], "random")
+        misMat[,i]<- a
+      }
+      
+      dattable[,colnames(dattable)[indx]]<- misMat
+    }
+    
+  }
+  
+  
+  ## 2. performance measurment
+  perform<- perf.Measure(dattable, method= pfM.method ,pos.class) 
+  
+  ## 3. simulation
+  labs<- dattable[,ncol(dattable)]
+  tab<-prop.table(table(labs))
+  pfms<-performance.measure.sim (pfm= pfM.method,nrow(dattable),tab,no.simulations= no.simulations) 
+  
+  ## 4. p values & confidence interval 
+  if(is.positive==TRUE){
+    RealData<-sapply(perform, function(x) sum(perform>x))
+    pfms_sum<-sapply(perform, function(x) sum(pfms>x))
+    
+  }
+  
+  if(is.positive==FALSE){
+    RealData<-sapply(perform, function(x) sum(perform<x))
+    pfms_sum<-sapply(perform, function(x) sum(pfms<x))
+  }
  
+    p_value<- NULL
+  for (i in 1: length(pfms_sum)){
+    probability<- pfms_sum[i]/no.simulations
+    p_value[i]<- probability
+  }
+  
+  ## 5.Corrected p values
+  
+  if(corrected.method== "FWER"){
+    correctd_P.value<- p_value* (ncol(dattable)-1)
+    
+  }
+  
+  if(corrected.method== "FDR"){
+    correctd_P.value<- p.adjust(p_value, method = "BH", n = length(p_value))
+  }
+  correctd_P.value<- ifelse(correctd_P.value > 0.05,  1, correctd_P.value )
+  
+  d<- data.frame(colnames(dattable[,-ncol(dattable)]),perform,round(p_value,5),round(correctd_P.value,5))
+  colnames(d)<- c("Biomarker candidates", paste(pfM.method), "p value", paste("corrected p value",corrected.method))
+  rownames(d)<-NULL
+  
+  return(d)
+}
+
+hipermab<- function(dattable,random.simulation, imput.method, pfM.method,no.simulations,pos.class,Con.Interval,is.positive=TRUE){
+  
+  labs<- as.factor(dattable[,ncol(dattable)])
+  lvs<- levels(labs)
+  
+  if (is.null(pos.class)){
+    pos.class <- lvs[1]
+  }
+  
+  ## 1. Generating Random dattable
+  rand.dat<- generate.random.mis(dattable,random.simulation)
+  
+  
+  ## 2. Imputation
+  if (sum(is.na(dattable))> 0){
+    ## Real dattable
+    indx <- unique(which(is.na(dattable), arr.ind=TRUE)[,2])
+    misMat<- matrix(0, nrow(dattable), length(indx))
+    colnames(misMat)<- colnames(dattable)[indx]
+    
     ## Random dattable
     indx.rand <- unique(which(is.na(rand.dat), arr.ind=TRUE)[,2])
     misMat.rand<- matrix(0, nrow(rand.dat), length(indx.rand))
@@ -495,173 +546,53 @@ performance<- function(dattable, random.simulation= "MonteCarlo",imput.method= "
       }
       
       rand.dat[,colnames(rand.dat)[indx.rand]]<- misMat.rand
-      
       dattable[,colnames(dattable)[indx]]<- misMat
     }
     
   }
   
   
-  ## 2. performance measurment
-  perform<- perf.Measure(dattable, method= pfM.method ,pos.class) 
-  perform.rand<- perf.Measure(rand.dat, method= pfM.method ,pos.class)
-
-  ## 3. simulation
-  labs<- dattable[,ncol(dattable)]
-
-  tab<-prop.table(table(labs))
-  pfms<-performance.measure.sim (pfm= pfM.method,nrow(dattable),tab,no.simulations= no.simulations) ##6.Con.Interval
-
-  ## 4.  seqs
-  if(is.positive==TRUE){
-    sign<- ">"
-    RealData<-sapply(perform, function(x) sum(perform>x))
-    RandomData<-sapply(perform, function(x) sum(perform.rand>x))
-    pfms_sum<-sapply(perform, function(x) sum(pfms>x))
-    
-  }
-  
-  if(is.positive==FALSE){
-    sign<- "<"
-    RealData<-sapply(perform, function(x) sum(perform<x))
-    RandomData<-sapply(perform, function(x) sum(perform.rand<x))
-    pfms_sum<-sapply(perform, function(x) sum(pfms<x))
-  }
-
-  ## 5.p values & confidence interval 
-  p_value<- NULL
-
-  for (i in 1: length(pfms_sum)){
-    probability<- pfms_sum[i]/no.simulations
-    p_value[i]<- probability
-    
-    
-  }
-
-  ## 6.Corrected p values
-  
-  if(corrected.method== "FWER"){
-    correctd_P.value<- p_value* (ncol(dattable)-1)
-  }
- 
-  if(corrected.method== "FDR"){
-    correctd_P.value<- p.adjust(p_value, method = "BH", n = length(p_value))
-  }
-  correctd_P.value<- ifelse(correctd_P.value > 0.05,  1, correctd_P.value )
-
-  d<- data.frame(colnames(dattable[,-ncol(dattable)]),perform,round(p_value,5),round(correctd_P.value,5))
-  colnames(d)<- c("Biomarker candidates", paste(pfM.method), "p value", paste("corrected p value",corrected.method))
-  rownames(d)<-NULL
-
-  return(d)
-}
-
-hipermab<- function(dattable,random.simulation, imput.method, pfM.method,no.simulations,pos.class,Con.Interval,is.positive=TRUE){
-
-  #dat <- dattable[,-ncol(dattable)]
-  labs<- dattable[,ncol(dattable)]
-  lvs<- levels(labs)
-
-  if (is.null(pos.class)){
-    pos.class <- lvs[1]
-  }
-
-  ## 1. Generating Random dattable
-  rand.dat<- generate.random.mis(dattable,random.simulation)
-
-
-  ## 2. Imputation
-  if (sum(is.na(dattable))> 0){
-    ## Real dattable
-    indx <- unique(which(is.na(dattable), arr.ind=TRUE)[,2])
-    misMat<- matrix(0, nrow(dattable), length(indx))
-    colnames(misMat)<- colnames(dattable)[indx]
-
-    ## Random dattable
-    indx.rand <- unique(which(is.na(rand.dat), arr.ind=TRUE)[,2])
-    misMat.rand<- matrix(0, nrow(rand.dat), length(indx.rand))
-    colnames(misMat.rand)<- colnames(rand.dat)[indx.rand]
-
-    if(imput.method== "median"){
-      for(i in 1:length(indx)){
-        a<- Hmisc::impute(dattable[,indx[i]])
-
-        misMat[,i]<- a
-      }
-      for(i in 1:length(indx.rand)){
-        a<- Hmisc::impute(rand.dat[,indx.rand[i]])
-        misMat.rand[,i]<- a
-      }
-
-      rand.dat[,colnames(rand.dat)[indx.rand]]<- misMat.rand
-      dattable[,colnames(dattable)[indx]]<- misMat
-
-    }
-    ###################################
-    if (imput.method== "random"){
-      for(i in 1:length(indx)){
-        a<- Hmisc::impute(dattable[,indx[i]], "random")
-        misMat[,i]<- a
-      }
-      for(i in 1:length(indx.rand)){
-        a<- Hmisc::impute(rand.dat[,indx.rand[i]], "random")
-        misMat.rand[,i]<- a
-      }
-
-      rand.dat[,colnames(rand.dat)[indx.rand]]<- misMat.rand
-
-      dattable[,colnames(dattable)[indx]]<- misMat
-    }
-
-  }
-
-
   perform<- perf.Measure(dattable, method= pfM.method ,pos.class)
-
   perform.rand<- perf.Measure(rand.dat, method= pfM.method ,pos.class)
-
+  
   ## 4. simulation
   tab<-prop.table(table(labs))
   pfms<-performance.measure.sim (pfM.method,nrow(dattable),tab,no.simulations= no.simulations)
-
+  
   ## 5.  seqs
   all.ent<- c(min(perform), max(perform),min(perform.rand), max(perform.rand),min(pfms), max(pfms))
-
   seqs<- seq(min(all.ent), max(all.ent), 0.01)
-
+  
   if(is.positive==TRUE){
     RealData<-sapply(seqs, function(x) sum(perform>x))
     RandomData<-sapply(seqs, function(x) sum(perform.rand>x))
     pfms_sum<-sapply(seqs, function(x) sum(pfms>x))
     
   }
-
+  
   if(is.positive==FALSE){
     RealData<-sapply(seqs, function(x) sum(perform<x))
     RandomData<-sapply(seqs, function(x) sum(perform.rand<x))
     pfms_sum<-sapply(seqs, function(x) sum(pfms<x))
   }
-
-
+  
+  
   ##6.Con.Interval
   conf.Interval<- NULL
   
   for (i in 1: length(pfms_sum)){
     probability<- pfms_sum[i]/no.simulations
-    
-   
     CI<- qbinom(Con.Interval, ncol(dattable[,-ncol(dattable)]),probability )
     conf.Interval[i]<- CI
     
   }
- 
-
+  
   df<- data.frame(RealData, RandomData, conf.Interval)
   rownames(df)<- seqs
   return(list(Performance= data.frame(perform),
               ByNumbers= df,
               ByPlot= plotLines(seqs, df,xlab=paste(pfM.method),  ylab="Number of Features", main="HiPerMAb Curve", titles=NULL, shape="vh")))
-
+  
 }
 
 ####################################################################################################################################
@@ -738,19 +669,6 @@ plot.no.required.true.biomarkers <- function(m.values,p.values,alpha=0.05,pow=0.
     persp3D(m.values,p.values,z,theta=theta,phi=phi,axes=T,zlim=zlim,scale=2,box=TRUE,nticks=5,ticktype="detailed",xlab=xlab, ylab=ylab,zlab=zlab,main=main)
   }  
 }
-
-
-
-####################################################################################################################################
-################################## Example plots ###################################################################################
-####################################################################################################################################
-
-
-# plot.no.required.true.biomarkers(seq(from=100,to=1000,by=50),seq(from=0.001,to=0.05,by=0.001),theta=30,phi=50)
-# 
-# 
-# plot.no.required.true.biomarkers(seq(from=100,to=10000,by=200),seq(from=0.001,to=0.05,by=0.002),theta=30,phi=50)
-
 
 
 

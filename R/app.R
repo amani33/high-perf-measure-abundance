@@ -11,8 +11,41 @@
 
 source("HiPerMAb.R")
 
+####################################### Libraries #################################################
+if("Hmisc" %in% rownames(installed.packages())){
+  library(Hmisc)} else{
+    install.packages("Hmisc")}
 
-# Define UI for application that draws HiPerMAb curves
+if("pROC" %in% rownames(installed.packages())){
+  library(pROC)} else{
+    install.packages("pROC")}
+
+if("discretization" %in% rownames(installed.packages())){
+  library(discretization)} else{
+    install.packages("discretization")}
+
+if("plotly" %in% rownames(installed.packages())){
+  library(plotly)} else{
+    install.packages("plotly")}
+
+if("Biocomb" %in% rownames(installed.packages())){
+  library(Biocomb)} else{
+    install.packages("Biocomb")}
+
+if("data.table" %in% rownames(installed.packages())){
+  library(data.table)} else{
+    install.packages("data.table")}
+
+if("plot3D" %in% rownames(installed.packages())){
+  library(plot3D)} else{
+    install.packages("plot3D")}
+
+if("DT" %in% rownames(installed.packages())){
+  library(DT)} else{
+    install.packages("DT")}
+
+####################################### User Interface ############################################
+
 ui <- fluidPage(
   fileInput(inputId = "data", label = "Choose a file.", accept = c("text/csv", "text/comma-separated-values, text/plain", ".csv")), 
   
@@ -26,10 +59,9 @@ ui <- fluidPage(
                       selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random"))
                       
                       ,
-                     
+                      
                       selectInput(inputId = "is.positive", label = "is.positive",choices = c( "FALSE", "TRUE")),
                       selectInput(inputId = "corrected.method", label = "corrected p-value",choices = c( "FWER", "FDR"))
-                      
                       
                       ,
                       splitLayout(
@@ -45,20 +77,14 @@ ui <- fluidPage(
                                dataTableOutput("performance.table")
                                
                       )),
-             ###############################################################################################
              
              tabPanel("HiPerMAb table and curves",
                       selectInput(inputId = "pfM.method", label = "performance method",choices =list("entropy","mAUC","AAC","HUM","misClassRate")),
                       selectInput(inputId = "random.simulation", label = "simulate random data",choices = c("MonteCarlo","Permutation")),
-                      selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random"))
-                      #),br(),br()
-                      ,
-                      # splitLayout(
-                      selectInput(inputId = "is.positive", label = "is.positive",choices = c( "FALSE", "TRUE")),
-                      #selectInput(inputId = "corrected.method", label = "corrected p-value",choices = c( "FWER", "FDR"))
+                      selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random")),
                       
-                      #),br(),br()
-                      #,
+                      selectInput(inputId = "is.positive", label = "is.positive",choices = c( "FALSE", "TRUE")),
+                      
                       splitLayout(
                         textInput("text", "positive class", value = "NULL"),
                         numericInput(inputId = "no.simulations", label = "no.simulations",value = 1000, min = 100, max = 1000000, step = 100),
@@ -105,9 +131,9 @@ ui <- fluidPage(
                       )
                       
              )
-           )))#)
+           )))
 
-# Define server logic required to draw a histogram
+####################################### Server ####################################################
 server <- function(input, output) {
   
   
@@ -168,5 +194,5 @@ server <- function(input, output) {
 }
 
 
-# Run the application 
+####################################### Run the application ####################################### 
 shinyApp(ui = ui, server = server)
