@@ -24,13 +24,13 @@ ui <- fluidPage(
                       selectInput(inputId = "pfM.method", label = "performance method",choices =list("entropy","mAUC","AAC","HUM","misClassRate")),
                       selectInput(inputId = "random.simulation", label = "simulate random data",choices = c("MonteCarlo","Permutation")),
                       selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random"))
-                      #),br(),br()
+                      
                       ,
-                      # splitLayout(
+                     
                       selectInput(inputId = "is.positive", label = "is.positive",choices = c( "FALSE", "TRUE")),
                       selectInput(inputId = "corrected.method", label = "corrected p-value",choices = c( "FWER", "FDR"))
                       
-                      #),br(),br()
+                      
                       ,
                       splitLayout(
                         textInput("text", "positive class", value = "NULL"),
