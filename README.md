@@ -5,23 +5,23 @@ Due to the affordability to study large number of biomarker candidates to find a
 
 
 The users can use the defult or choose from the options. 
-##	performance metho: mAUC= multiclass AUC, entropy, AAC= Area above the cost curve, HUM= hypervolume under manifold, or misClassRate= misclassification rate 
+	performance metho: mAUC= multiclass AUC, entropy, AAC= Area above the cost curve, HUM= hypervolume under manifold, or misClassRate= misclassification rate 
 
-##	simulate random data: Monte-Carlo test or permutation test
+	simulate random data: Monte-Carlo test or permutation test
 
-## impute missing values: by median or random 
+  impute missing values: by median or random 
 
-## is positive: TRUE or FALSE 
+ is positive: TRUE or FALSE 
 the user should select TRUE for mAUC, AAC, and HUM or FALSE for entropy and misClassRate.
 
-## no.simulations:
+ no.simulations:
 refers to the number of biomarker candidates that should be simulated to calculate the required p-values.
 
-## Conf.Interval: level for the confidence interval (i.e. 95%). 
+ Conf.Interval: level for the confidence interval (i.e. 95%). 
 
-## positive class: in the case of AAC, the user has to specify the positive class in the data set. Otherwise, automatically the first class, alphabetically, will be chosen.
+ positive class: in the case of AAC, the user has to specify the positive class in the data set. Otherwise, automatically the first class, alphabetically, will be chosen.
 
-## corrected p-value: it is only for the performance part. The p-value could be corrected either by controlling the FWER using Holm-Bonferroni correction or FDR using Benjamini and Hochberg method.
+ corrected p-value: it is only for the performance part. The p-value could be corrected either by controlling the FWER using Holm-Bonferroni correction or FDR using Benjamini and Hochberg method.
 
 
 
