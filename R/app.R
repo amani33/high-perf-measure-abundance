@@ -9,7 +9,7 @@
 
 
 
-source("HiPerMAb.R")
+
 
 ####################################### Libraries #################################################
 if("Hmisc" %in% rownames(installed.packages())){
@@ -44,6 +44,7 @@ if("DT" %in% rownames(installed.packages())){
   library(DT)} else{
     install.packages("DT")}
 
+source("HiPerMAb.R")
 ####################################### User Interface ############################################
 
 ui <- fluidPage(
