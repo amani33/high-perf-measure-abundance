@@ -15,9 +15,6 @@ impute missing values: by median or random
 is positive: TRUE or FALSE the user should select TRUE for mAUC, AAC, and HUM or FALSE for entropy and misClassRate.
 
 
-
-
-
 no.simulations: refers to the number of biomarker candidates that should be simulated to calculate the required p-values.
 
 Conf.Interval: level for the confidence interval (i.e. 95%). 
@@ -30,6 +27,9 @@ corrected p-value: it is only for the performance part. The p-value could be cor
 
 
 # Installation
+
+R version should be R (≥ 4.0.2) 
+In case Java are not installed, Users can see and install it in https://www.java.com/en/download/manual.jsp 
 
 Use the function runGitHub() from the package shiny:
 
