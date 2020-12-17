@@ -9,41 +9,42 @@
 
 
 
-source("HiPerMAb.R")
+
 
 ####################################### Libraries #################################################
 if("Hmisc" %in% rownames(installed.packages())){
   library(Hmisc)} else{
-    install.packages("Hmisc")}
+    install.packages("Hmisc",dependencies = T)}
 
 if("pROC" %in% rownames(installed.packages())){
   library(pROC)} else{
-    install.packages("pROC")}
+    install.packages("pROC",dependencies = T)}
 
 if("discretization" %in% rownames(installed.packages())){
   library(discretization)} else{
-    install.packages("discretization")}
+    install.packages("discretization",dependencies = T)}
 
 if("plotly" %in% rownames(installed.packages())){
   library(plotly)} else{
-    install.packages("plotly")}
+    install.packages("plotly",dependencies = T)}
 
 if("Biocomb" %in% rownames(installed.packages())){
   library(Biocomb)} else{
-    install.packages("Biocomb")}
+    install.packages("Biocomb", dependencies = T)}
 
 if("data.table" %in% rownames(installed.packages())){
   library(data.table)} else{
-    install.packages("data.table")}
+    install.packages("data.table",dependencies = T)}
 
 if("plot3D" %in% rownames(installed.packages())){
   library(plot3D)} else{
-    install.packages("plot3D")}
+    install.packages("plot3D",dependencies = T)}
 
 if("DT" %in% rownames(installed.packages())){
   library(DT)} else{
-    install.packages("DT")}
+    install.packages("DT", dependencies = T)}
 
+source("HiPerMAb.R")
 ####################################### User Interface ############################################
 
 ui <- fluidPage(

@@ -2,6 +2,16 @@
 ################ High performance measurements abundance R shiny application #############
 #########################################################################################
 
+###########  libraries ############
+library(Hmisc)
+library(pROC)
+library(discretization)
+library(plotly)
+library(shiny)
+library(Hmisc)
+library(Biocomb)
+library(data.table)
+library(DT)
 ##### generate random data with the same missing pattern usining either Monte-Carlo or permutation test######### 
 generate.random.mis <- function(data,method="MonteCarlo"){
   
