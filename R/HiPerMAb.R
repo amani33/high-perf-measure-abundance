@@ -2,18 +2,9 @@
 ################ High performance measurements abundance R shiny application #############
 #########################################################################################
 
-###########  libraries ############
-library(Hmisc)
-library(pROC)
-library(discretization)
-library(plotly)
-library(shiny)
-library(Hmisc)
-library(Biocomb)
-library(data.table)
-library(DT)
+
 ##### generate random data with the same missing pattern usining either Monte-Carlo or permutation test######### 
-generate.random.mis <- function(data,method="MonteCarlo"){
+generate.random.mis <- function(data,method="Monte Carlo"){
   
   labs <- data[,ncol(data)]
   dat<- data[,-ncol(data)]
@@ -21,7 +12,7 @@ generate.random.mis <- function(data,method="MonteCarlo"){
   m<- ncol(data[,-ncol(data)])
   
   
-  if (method== "MonteCarlo"){
+  if (method== "Monte Carlo"){
     
     scores <- matrix(runif(n*m), nrow=n, ncol=m)
     
@@ -42,7 +33,7 @@ generate.random.mis <- function(data,method="MonteCarlo"){
     return(data.frame(dat,rand.labs))
   } 
   else{
-    stop("the method of simulation should be either 'MonteCarlo' or 'Permutation' ")
+    stop("the method of simulation should be either 'Monte Carlo' or 'Permutation' ")
   }
   
 }
@@ -307,6 +298,18 @@ entropy <- function(scores, labs){
   return(cutIndex(scores, labs)[2])
 }
 
+mauc<- function(x, labs){
+  
+  a<- pROC:: multiclass.roc(labs, x)$auc[1]
+  
+  if (a>= 0.5){
+    auc<- a
+  }else{
+    auc<- 1-a
+  }
+  
+  return(a)
+}
 mAUC <- function(scores,labs){
   return(multiclass.roc(labs,scores)$auc[1])
 }
@@ -316,7 +319,7 @@ missRate <- function(scores,labs){
 }
 
 perf.Measure<- function(data, method ,pos.class=NULL){
-  label=levels(data[,ncol(data)])
+  data[,ncol(data)]<- as.factor(data[,ncol(data)])
   switch(method, 
          mAUC={mauc<- apply(data[,-ncol(data)],2, mAUC, data[,ncol(data)])
          vals<- mauc
@@ -418,23 +421,24 @@ plotLines<-function(x, y, xlab=NULL, ylab=NULL, main=NULL, titles=NULL,  shape="
   
   
   for(i in 1:ncol(y)) {
-    p<-plotly::add_lines(p, y=y[, i], line=list(shape=shape), opacity=opacity[i], name=titles[i])
+    #p<-plotly::add_lines(p, y=y[, i], line=list(shape=shape), opacity=opacity[i], name=titles[i])
+    p<-plotly::add_lines(p, y=y[, i], line=list(shape=shape, width =6), opacity=opacity[i], name=titles[i])
   }
   p
 }
 
-performance<- function(dattable, random.simulation= "MonteCarlo",imput.method= "median", pfM.method= "entropy", 
-                       no.simulations= 1000,pos.class= NULL, Con.Interval= 0.95,is.positive=FALSE,corrected.method= "FWER"){
+performance<- function(dattable, random.simulation= "Monte Carlo",imput.method= "median", pfM.method= "entropy", 
+           no.simulations= 1000,pos.class= NULL, Con.Interval= 0.95,is.positive=FALSE,corrected.method= "FWER"){
   
   dattable[,ncol(dattable)]<- as.factor(dattable[,ncol(dattable)])
-
+  
   ## 1. Missing Imputation
   if (sum(is.na(dattable))> 0){
     ## Real dattable
     indx <- unique(which(is.na(dattable), arr.ind=TRUE)[,2])
     misMat<- matrix(0, nrow(dattable), length(indx))
     colnames(misMat)<- colnames(dattable)[indx]
-
+    
     
     if(imput.method== "median"){
       for(i in 1:length(indx)){
@@ -442,7 +446,7 @@ performance<- function(dattable, random.simulation= "MonteCarlo",imput.method= "
         
         misMat[,i]<- a
       }
-     
+      
       dattable[,colnames(dattable)[indx]]<- misMat
       
     }
@@ -478,19 +482,18 @@ performance<- function(dattable, random.simulation= "MonteCarlo",imput.method= "
     RealData<-sapply(perform, function(x) sum(perform<x))
     pfms_sum<-sapply(perform, function(x) sum(pfms<x))
   }
- 
-    p_value<- NULL
+
+  p_value<- NULL
   for (i in 1: length(pfms_sum)){
     probability<- pfms_sum[i]/no.simulations
     p_value[i]<- probability
   }
-  
+ 
   ## 5.Corrected p values
   
   if(corrected.method== "FWER"){
     correctd_P.value<- p_value* (ncol(dattable)-1)
-    
-  }
+ }
   
   if(corrected.method== "FDR"){
     correctd_P.value<- p.adjust(p_value, method = "BH", n = length(p_value))
@@ -598,6 +601,7 @@ hipermab<- function(dattable,random.simulation, imput.method, pfM.method,no.simu
   }
   
   df<- data.frame(RealData, RandomData, conf.Interval)
+  colnames(df)<- c("Real Data", "Random Data", "confidence Interval")
   rownames(df)<- seqs
   return(list(Performance= data.frame(perform),
               ByNumbers= df,
@@ -673,12 +677,23 @@ plot.no.required.true.biomarkers <- function(m.values,p.values,alpha=0.05,pow=0.
       z[i,j] <- min.no.biomarkers(m.values[i],p.values[j],alpha=alpha,pow=pow)
     }
   }
-  if (grid.plot){
-    persp(m.values,p.values,z,theta=theta,phi=phi,r=2,shade=0.4,axes=T,scale=T,box=T,nticks=5,ticktype="detailed",col=col.grid,xlab=xlab,ylab=ylab,zlab=zlab,main=main)
-  }else{
-    persp3D(m.values,p.values,z,theta=theta,phi=phi,axes=T,zlim=zlim,scale=2,box=TRUE,nticks=5,ticktype="detailed",xlab=xlab, ylab=ylab,zlab=zlab,main=main)
-  }  
+  # if (grid.plot){
+  #   persp(m.values,p.values,z,theta=theta,phi=phi,r=2,shade=0.4,axes=T,scale=T,box=T,nticks=5,ticktype="detailed",col=col.grid,xlab=xlab,ylab=ylab,zlab=zlab,main=main)
+  # }else{
+  #   persp3D(m.values,p.values,z,theta=theta,phi=phi,axes=T,zlim=zlim,scale=2,box=TRUE,nticks=5,ticktype="detailed",xlab=xlab, ylab=ylab,zlab=zlab,main=main)
+  # } 
+  
+  plot_ly(x= m.values,
+          y= p.values,
+          z= z,
+    type = "contour" 
+  )
 }
+
+
+
+
+
 
 
 
