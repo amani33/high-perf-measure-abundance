@@ -14,35 +14,39 @@
 ####################################### Libraries #################################################
 if("Hmisc" %in% rownames(installed.packages())){
   library(Hmisc)} else{
-    install.packages("Hmisc",dependencies = T)}
+    install.packages("Hmisc",dependencies = T)
+library(Hmisc)}
 
 if("pROC" %in% rownames(installed.packages())){
   library(pROC)} else{
-    install.packages("pROC",dependencies = T)}
+    install.packages("pROC",dependencies = T)
+library(pROC)}
 
 if("discretization" %in% rownames(installed.packages())){
   library(discretization)} else{
-    install.packages("discretization",dependencies = T)}
+    install.packages("discretization",dependencies = T)
+library(discretization)}
 
 if("plotly" %in% rownames(installed.packages())){
   library(plotly)} else{
-    install.packages("plotly",dependencies = T)}
+    install.packages("plotly",dependencies = T)
+library(plotly)}
 
 if("Biocomb" %in% rownames(installed.packages())){
   library(Biocomb)} else{
-    install.packages("Biocomb", dependencies = T)}
+    install.packages("Biocomb", dependencies = T)
+library(Biocomb)}
 
 if("data.table" %in% rownames(installed.packages())){
   library(data.table)} else{
-    install.packages("data.table",dependencies = T)}
+    install.packages("data.table",dependencies = T)
+library(data.table)}
 
-if("plot3D" %in% rownames(installed.packages())){
-  library(plot3D)} else{
-    install.packages("plot3D",dependencies = T)}
 
 if("DT" %in% rownames(installed.packages())){
   library(DT)} else{
-    install.packages("DT", dependencies = T)}
+    install.packages("DT", dependencies = T)
+library(DT)}
 
 source("HiPerMAb.R")
 ####################################### User Interface ############################################
