@@ -44,4 +44,4 @@ The following packages are downloaded or imported when starting this app:
 "Biocomb"
 "data.table"
 "DT"
-"plot3D"
+
