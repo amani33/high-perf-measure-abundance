@@ -33,8 +33,8 @@ if("plotly" %in% rownames(installed.packages())){
     library(plotly)}
 
  if("Biocomb" %in% rownames(installed.packages())){
-   library(Biocomb)} else{
-     install.packages("Biocomb")
+  library(Biocomb)} else{
+    install.packages("Biocomb")
      library(Biocomb)}
 
 if("data.table" %in% rownames(installed.packages())){
@@ -90,7 +90,7 @@ ui <- fluidPage(
             splitLayout(
               textInput("text", "positive class", value = "NULL"),
               numericInput(inputId = "no.simulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
-              numericInput(inputId = "Con.Interval", label = "Confidence Interval",value = 0.95, min = 0, max = 1, step = 0.05)
+              numericInput(inputId = "Con.Interval", label = "confidence interval",value = 0.95, min = 0, max = 1, step = 0.05)
             ),
             br(),  
             
@@ -116,7 +116,7 @@ ui <- fluidPage(
               numericInput(inputId = "pv.no1", label = "from ",value = 0.001, min = 0.001, max = 0.05, step = 0.001),
               numericInput(inputId = "pv.no2", label = "to ",value = 0.05, min = 0.001, max = 0.05, step = 0.001)
             ) ,
-            splitLayout("Confidence Interval (1-alpha)",
+            splitLayout("confidence interval (1-alpha)",
                         numericInput(inputId = "alpha", label = "alpha",value = 0.05, min = 0.001, max = 0.05, step = 0.002),
                         numericInput(inputId = "power", label = "power",value = 0.8, min = 0, max = 1, step = 0.05)
             ),
@@ -143,7 +143,7 @@ server <- function(input, output) {
   perfo.table<- eventReactive(input$performanceTable, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate(performance(read.csv2(data.input$datapath), input$random.simulation, input$imput.method, 
+      isolate(performance(read.csv(data.input$datapath), input$random.simulation, input$imput.method, 
                           input$pfM.method,input$no.simulations,input$pos.class,input$Con.Interval, 
                           input$is.positive,input$corrected.method))
       
@@ -157,7 +157,7 @@ server <- function(input, output) {
   curve<- eventReactive(input$HiPerMAbCurve, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate( hipermab(read.csv2(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
+      isolate( hipermab(read.csv(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
                         input$pos.class,input$Con.Interval, input$is.positive)$ByPlot)
     }
   })
@@ -171,7 +171,7 @@ server <- function(input, output) {
   hipermab.table<- eventReactive(input$HiPerMAbTable, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate(hipermab(read.csv2(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
+      isolate(hipermab(read.csv(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
                        input$pos.class,input$Con.Interval, input$is.positive)$ByNumbers)
       
     }  
