@@ -64,7 +64,7 @@ ui <- fluidPage(
       ,
         splitLayout(
           textInput("text", "positive class", value = "NULL"),
-          numericInput(inputId = "no.simulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
+          numericInput(inputId = "no.simulations", label = "no.simulations",value = 1000, min = 100, max = 1000000, step = 100),
         ),
         br(),
         
@@ -138,7 +138,7 @@ server <- function(input, output) {
   perfo.table<- eventReactive(input$performanceTable, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate(performance(read.csv2(data.input$datapath), input$random.simulation, input$imput.method, 
+      isolate(performance(read.csv(data.input$datapath),  input$imput.method, 
                           input$pfM.method,input$no.simulations,input$pos.class,
                           input$is.positive,input$corrected.method))
       
@@ -152,7 +152,7 @@ server <- function(input, output) {
   curve<- eventReactive(input$HiPerMAbCurve, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate( hipermab(read.csv2(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
+      isolate( hipermab(read.csv(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
                         input$posclass,input$ConInterval, input$ispositive)$ByPlot)
     }
   })
@@ -166,7 +166,7 @@ server <- function(input, output) {
   hipermab.table<- eventReactive(input$HiPerMAbTable, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate(hipermab(read.csv2(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
+      isolate(hipermab(read.csv(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
                        input$posclass,input$ConInterval, input$ispositive)$ByNumbers)
       
     }  
