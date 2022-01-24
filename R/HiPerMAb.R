@@ -117,7 +117,8 @@ check.similarity<- function(scores,labels){
 }
 
 class.indx<- function(new.labs,lv){
-  
+   if(length(lv)<=2 |length(lv)>=11 ){
+    stop("the number of classes should be more than 2 and less than 11")}
   n.cutoff<- length(lv)-1
   class.index<- rep(list(NULL), n.cutoff)
   
@@ -183,6 +184,7 @@ class.index.list<- function(scores,labels){
 possible.cutpoint<- function(index.mat){
   n.cutoff<- length(index.mat)
   if( n.cutoff <2 |  n.cutoff>9){stop("the number of classes should be more than 2 and less than 11")}
+  if(n.cutoff== 2){return(as.matrix(do.call(data.table::CJ, index.mat)[V1 < V2 ]))}
   if(n.cutoff== 3){return(as.matrix(do.call(data.table::CJ, index.mat)[V1 < V2 & V1 < V3 & V2 < V3]))}
   if(n.cutoff== 4){return(as.matrix(do.call(data.table::CJ, index.mat)[V1<V2 & V1<V3 & V1<V4 & V2<V3 & V2<V4 &V3<V4]))}
   if(n.cutoff== 5){return(as.matrix(do.call(data.table::CJ, index.mat)[V1<V2 &V1<V3 &V1<V4 &V1<V5 &V2<V3 &V2<V4 &V2<V5 &V3<V4 &V3<V5 &V4<V5]))}
@@ -314,8 +316,8 @@ mAUC <- function(scores,labs){
   return(multiclass.roc(labs,scores)$auc[1])
 }
 
-missRate <- function(scores,labs){
-  return(misClass.Rate(scores, labs)$misclassification.rate)
+misClassRate <- function(scores,labs){
+  return(misClass.Rate(scores, labs))
 }
 
 perf.Measure<- function(data, method ,pos.class=NULL){
@@ -336,7 +338,7 @@ perf.Measure<- function(data, method ,pos.class=NULL){
          HUM={hum<-apply(data[,-ncol(data)], 2, HUM.perf, data[,ncol(data)])
          vals<- unlist(sapply(hum, "[[", 1))
          },
-         misClassRate={misR<-apply(data[,-ncol(data)], 2, missRate, data[,ncol(data)])
+         misClassRate={misR<-apply(data[,-ncol(data)], 2, misClassRate, data[,ncol(data)])
          vals<- misR
          }
          
@@ -358,7 +360,7 @@ performance.measure.sim <- function(pfm,n,p.classes,no.simulations=1000){
     diagn[ind.start:ind] <- i
   }
   
-  diagn <- factor(diagn)
+  diagn <- as.factor(diagn)
   
   
   ### Generate no.simulations "biomarkers" with random values.
@@ -367,7 +369,7 @@ performance.measure.sim <- function(pfm,n,p.classes,no.simulations=1000){
   
   ### Compute the performance measure values for the generated "biomarkers".
   if(pfm== "AAC"){
-    pfms <- sapply(data.frame(x),pfm,labs=diagn,NULL)
+    pfms <- sapply(data.frame(x),pfm,labs=diagn,pos.class= pos.class)
   }else{
     pfms <- sapply(data.frame(x),pfm,labs=diagn)
   }
@@ -427,8 +429,10 @@ plotLines<-function(x, y, xlab=NULL, ylab=NULL, main=NULL, titles=NULL,  shape="
   p
 }
 
-performance<- function(dattable, random.simulation= "Monte Carlo",imput.method= "median", pfM.method= "entropy", 
+performance<- function(dattable, imput.method= "median", pfM.method= "entropy", 
            no.simulations= 1000,pos.class= NULL, Con.Interval= 0.95,is.positive=FALSE,corrected.method= "FWER"){
+  
+  
   
   dattable[,ncol(dattable)]<- as.factor(dattable[,ncol(dattable)])
   
