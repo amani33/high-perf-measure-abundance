@@ -64,7 +64,7 @@ ui <- fluidPage(
       ,
         splitLayout(
           textInput("text", "positive class", value = "NULL"),
-          numericInput(inputId = "nosimulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
+          numericInput(inputId = "no.simulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
         ),
         br(),
         
