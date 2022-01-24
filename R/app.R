@@ -59,17 +59,12 @@ ui <- fluidPage(
        tabsetPanel(
        tabPanel("Performance",
         selectInput(inputId = "pfM.method", label = "performance method",choices =list("entropy","mAUC","AAC","HUM","misClassRate")),
-        #selectInput(inputId = "random.simulation", label = "simulate random data",choices = c("Monte Carlo","Permutation")),
         selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random")),
-                
-        #selectInput(inputId = "is.positive", label = "is.positive",choices = c( "FALSE", "TRUE")),
         selectInput(inputId = "corrected.method", label = "corrected p-value",choices = c( "FWER", "FDR"))
       ,
         splitLayout(
-          textInput("text", "positive class", value = "NULL")
-          #,
-          #numericInput(inputId = "no.simulations", label = "no.simulations",value = 1000, min = 100, max = 1000000, step = 100),
-          #numericInput(inputId = "Con.Interval", label = "Conf.Interval",value = 0.95, min = 0, max = 1, step = 0.05)
+          textInput("text", "positive class", value = "NULL"),
+          numericInput(inputId = "nosimulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
         ),
         br(),
         
@@ -81,16 +76,16 @@ ui <- fluidPage(
                 )),
 
    tabPanel("HiPerMAb table and curves",
-            selectInput(inputId = "pfM.method", label = "performance method",choices =list("entropy","mAUC","AAC","HUM","misClassRate")),
-            selectInput(inputId = "random.simulation", label = "simulate random data",choices = c("Monte Carlo","Permutation")),
-            selectInput(inputId = "imput.method", label = "impute missing values",choices = c("median","random")),
+            selectInput(inputId = "pfMmethod", label = "performance method",choices =list("entropy","mAUC","AAC","HUM","misClassRate")),
+            selectInput(inputId = "randomsimulation", label = "simulate random data",choices = c("Monte Carlo","Permutation")),
+            selectInput(inputId = "imputmethod", label = "impute missing values",choices = c("median","random")),
            
-            selectInput(inputId = "is.positive", label = "is positive",choices = c( "FALSE", "TRUE")),
+            selectInput(inputId = "ispositive", label = "is positive",choices = c( "FALSE", "TRUE")),
             
             splitLayout(
               textInput("text", "positive class", value = "NULL"),
-              numericInput(inputId = "no.simulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
-              numericInput(inputId = "Con.Interval", label = "Confidence Interval",value = 0.95, min = 0, max = 1, step = 0.05)
+              numericInput(inputId = "nosimulations", label = "no. simulations",value = 1000, min = 100, max = 1000000, step = 100),
+              numericInput(inputId = "ConInterval", label = "Confidence Interval",value = 0.95, min = 0, max = 1, step = 0.05)
             ),
             br(),  
             
@@ -144,7 +139,7 @@ server <- function(input, output) {
     data.input <- input$data
     if(!is.null(data.input)){
       isolate(performance(read.csv2(data.input$datapath), input$random.simulation, input$imput.method, 
-                          input$pfM.method,input$no.simulations,input$pos.class,input$Con.Interval, 
+                          input$pfM.method,input$no.simulations,input$pos.class,
                           input$is.positive,input$corrected.method))
       
     }
@@ -157,8 +152,8 @@ server <- function(input, output) {
   curve<- eventReactive(input$HiPerMAbCurve, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate( hipermab(read.csv2(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
-                        input$pos.class,input$Con.Interval, input$is.positive)$ByPlot)
+      isolate( hipermab(read.csv2(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
+                        input$posclass,input$ConInterval, input$ispositive)$ByPlot)
     }
   })
   
@@ -171,8 +166,8 @@ server <- function(input, output) {
   hipermab.table<- eventReactive(input$HiPerMAbTable, {
     data.input <- input$data
     if(!is.null(data.input)){
-      isolate(hipermab(read.csv2(data.input$datapath),input$random.simulation, input$imput.method, input$pfM.method,input$no.simulations,
-                       input$pos.class,input$Con.Interval, input$is.positive)$ByNumbers)
+      isolate(hipermab(read.csv2(data.input$datapath),input$randomsimulation, input$imputmethod, input$pfMmethod,input$nosimulations,
+                       input$posclass,input$ConInterval, input$ispositive)$ByNumbers)
       
     }  
   })
