@@ -1,5 +1,5 @@
 ##### generate random data with the same missing pattern usining either Monte-Carlo or permutation test######### 
-generate.random.mis <- function(data,method="Monte Carlo"){
+generate.random.mis <- function(data,method="MonteCarlo"){
 ## dattable is the data frame of biomarker candidates in columns, cases in rows, the last column has the state of disease   ##
 ## method is the method  to generate random data set either "MonteCarlo" or "Permutation"                                             ##
     
@@ -9,7 +9,7 @@ generate.random.mis <- function(data,method="Monte Carlo"){
   m<- ncol(data[,-ncol(data)])
   
   
-  if (method== "Monte Carlo"){
+  if (method== "MonteCarlo"){
     
     scores <- matrix(runif(n*m), nrow=n, ncol=m)
     
@@ -30,7 +30,7 @@ generate.random.mis <- function(data,method="Monte Carlo"){
     return(data.frame(dat,rand.labs))
   } 
   else{
-    stop("the method of simulation should be either 'Monte Carlo' or 'Permutation' ")
+    stop("the method of simulation should be either 'MonteCarlo' or 'Permutation' ")
   }
 
 }
