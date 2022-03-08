@@ -69,7 +69,7 @@ ui <- fluidPage(
              tabPanel("HiPerMAb table and curves",
                       selectInput(inputId = "pfMmethod", label = "performance method",choices =list("mAUC","entropy","AAC","HUM","misClassRate")),
               
-                      selectInput(inputId = "randomsimulation", label = "simulate random data",choices = c("Monte Carlo","Permutation")),
+                      selectInput(inputId = "randomsimulation", label = "simulate random data",choices = c("MonteCarlo","Permutation")),
                       selectInput(inputId = "imputmethod", label = "impute missing values",choices = c("median","random")),
                       selectInput(inputId = "ispositive", label = "is positive",choices = list( "TRUE", "FALSE")),
                       
