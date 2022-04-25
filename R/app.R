@@ -1,4 +1,4 @@
-source("HiPerMAb.R")
+source("HiperMAb.R")
 
 ####################################### Libraries #################################################
 if("Hmisc" %in% rownames(installed.packages())){
