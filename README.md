@@ -47,6 +47,7 @@ Use the function runGitHub() from the package shiny:
 	runGitHub("high-perf-measure-abundance","Amani-Al-Mekhlafi",subdir = "R")
 
 New Windows will be opened; 
+
 •	Load the data set, which must be saved in *.csv format, observation in rows, biomarker candidates in columns, and contain the factor (states of disease) in           the last column. 
 
 •	The users have multiple choices;
@@ -56,6 +57,7 @@ New Windows will be opened;
 •	HiPerMAb table and curves; to show a table or to visualize the HiPerMAb
 
 •	HiPerMAb power; to show the required number of biomarkers with a significant p-value
+
 
 Users can use the default or changes the inputs. For performance and HiPerMAb table and curves, users must specify the number of simulation according to the number of biomarker candidates. The inputs are;
 
